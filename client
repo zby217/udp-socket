@@ -1,0 +1,26 @@
+import socket
+import os
+
+
+def client_send_file(file_path, server_ip, server_port):
+    # 创建UDP套接字
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # 获取文件名和文件大小
+    file_name = os.path.basename(file_path)
+    file_size = os.path.getsize(file_path)
+    # 发送文件名和文件大小给服务器
+    client_socket.sendto(file_name.encode(), (server_ip, server_port))
+    client_socket.sendto(str(file_size).encode(), (server_ip, server_port))
+    # 打开文件并发送数据
+    with open(file_path, "rb") as f:
+        data = f.read(1024)
+        while data:
+            client_socket.sendto(data, (server_ip, server_port))
+            data = f.read(1024)
+    print("文件发送完成！")
+    client_socket.close()
+if __name__ == "__main__":
+    file_path = "udpsocket.txt"
+    server_ip = "192.168.233.128"
+    server_port = 5001
+    client_send_file(file_path, server_ip, server_port)
