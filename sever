@@ -1,0 +1,29 @@
+import socket
+
+
+def server_receive_file(server_ip, server_port):
+    # 创建UDP套接字
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # 绑定IP和端口
+    server_socket.bind((server_ip, server_port))
+    print("服务器已启动，等待接收文件...")
+    # 接收文件名
+    file_name, client_address = server_socket.recvfrom(1024)
+    file_name = file_name.decode()
+    # 接收文件大小
+    file_size_str, client_address = server_socket.recvfrom(1024)
+    file_size = int(file_size_str)
+    # 接收文件数据
+    received_size = 0
+    with open(file_name, "wb") as f:
+        while received_size < file_size:
+            data, client_address = server_socket.recvfrom(1024)
+            f.write(data)
+            received_size += len(data)
+    print("文件接收完成！")
+    server_socket.close()
+
+if __name__ == "__main__":
+    server_ip = "192.168.233.128"
+    server_port = 5001
+    server_receive_file(server_ip, server_port)
